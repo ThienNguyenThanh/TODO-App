@@ -11,9 +11,12 @@ const {
 
 exports.handler = (event, content, callback) =>{
     
-    const data = JSON.parse(event.body).data
+    const title = event.queryStringParameters.title
     const todo_thing = {
-        data: data
+        data: {
+            "title": title,
+            "status": "active"
+        }
     }
     return client.query(
         Create(

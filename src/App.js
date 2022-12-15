@@ -1,8 +1,16 @@
 import './App.css';
 
 function App() {
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const todo = event.target.newTODO.value;
+    console.log(todo);
+  }
   return (
-    <h1>Hii</h1>
+    <form onSubmit={handleSubmit}>
+        <input type='text' placeholder="Enter things to do." name='newTODO'/>
+        <button>Add</button>
+    </form>
   );
 }
 
