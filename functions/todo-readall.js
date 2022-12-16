@@ -4,14 +4,14 @@ const faunadb = require('faunadb')
 const client = new faunadb.Client({secret: process.env.FAUNA_SECRET_KEY})
 
 const {
-    Paginate,
-    Documents,
-    Collection
+    Index,
+    Match,
+    Paginate
 } = faunadb.query
 
 exports.handler = (event, content, callback) => {
     return client.query(
-        Paginate(Documents(Collection("TODO-List")))
+        Paginate(Match(Index("todo-title")))
     ).then((res) => {
         return {
             statusCode: 200,
