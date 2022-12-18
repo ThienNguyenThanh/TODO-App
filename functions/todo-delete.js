@@ -4,25 +4,20 @@ const faunadb = require('faunadb')
 const client = new faunadb.Client({secret: process.env.FAUNA_SECRET_KEY})
 
 const {
-    Create,
+    Delete,
     Ref,
     Collection
 } = faunadb.query
 
-exports.handler = (event, content, callback) =>{
-    
+exports.handler = (event, content, callback) => {
     if(event.httpMethod == 'POST'){
-        const title = event.queryStringParameters.title
-        const todo_thing = {
-            data: {
-                "title": title,
-                "status": "active"
-            }
-        }
+        const id = event.queryStringParameters.id
+        
         return client.query(
-            Create(
-                Collection('TODO-List'),
-                todo_thing
+            Delete(
+                Ref(
+                    Collection('TODO-List'), id
+                )
             )
         ).then((response) => {
             return {
@@ -41,6 +36,7 @@ exports.handler = (event, content, callback) =>{
                 body: JSON.stringify(error)
             }
         })
+         
     }
 
     if(event.httpMethod == 'OPTIONS'){
