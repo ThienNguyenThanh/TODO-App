@@ -1,4 +1,3 @@
-import './App.css';
 import { QueryClient, QueryClientProvider } from 'react-query'
 import {ReactQueryDevtools} from 'react-query/devtools';
 import {TodoList} from './component/todoList'

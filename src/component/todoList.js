@@ -1,6 +1,8 @@
 import { useState} from 'react'
 import { getTODO, postTODO, updateTODO, deleteTODO } from './fetch';
 import {useQuery,useQueryClient, useMutation } from 'react-query';
+import { Typography, AppBar, Container, Box } from '@mui/material';
+
 
 
 export function TodoList() {
@@ -14,7 +16,7 @@ export function TodoList() {
     const queryClient = useQueryClient()
   
     // Queries
-    const {isFetching, isLoading, error, data} = useQuery('todos', getTODO)
+    const {isLoading, error, data} = useQuery('todos', getTODO)
   
     // Mutations
     const addMutation = useMutation(title => postTODO(title), {
@@ -69,7 +71,7 @@ export function TodoList() {
     
     return (
       <div>
-          <h1>TODO App</h1>
+          <Typography variant="h1">TODO App</Typography>
           <ul>
            {data.data.map((todo, idx) => (
               <TodoItem key={todo[0]}
