@@ -1,22 +1,17 @@
 import './App.css';
-import { getTODO, postTODO, deleteTODO } from './component/fetch';
+import { getTODO, postTODO, updateTODO, deleteTODO } from './component/fetch';
 import {useQuery,useQueryClient, QueryClient, QueryClientProvider, useMutation } from 'react-query'
 import {ReactQueryDevtools} from 'react-query/devtools';
-import {useState} from 'react'
+import { useState} from 'react'
 
-function Editable({...props}){
-  return(
-    props.toggleInput ? (
-      <input type="text" defaultValue='test' onBlur={props.handleBlur}   />
-    ) : (
-      <li onDoubleClick={props.handleDoubleClick}>{props.value}</li>
-    )
-  )
-}
+
 
 function Todos() {
   // Set todo's state
-  const [toggleInput, setToggleInput] = useState(false)
+
+  // const toggled = useRef()
+  const [toggled, setToggled] = useState(-1)
+
 
   // Access the client
   const queryClient = useQueryClient()
@@ -32,6 +27,13 @@ function Todos() {
     },
   })
 
+  const updateMutation = useMutation(({index, title}) => updateTODO(index, title), {
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries('todos')
+    },
+  })
+
   const deleteMutation = useMutation(id => deleteTODO(id), {
     onSuccess: () => {
       // Invalidate and refetch
@@ -39,25 +41,32 @@ function Todos() {
     },
   })
 
-  const handleSubmit = (event) => {
+  const handleAdd = (event) => {
     event.preventDefault();
     const todo = event.target.newTODO.value;
     addMutation.mutate(todo)
-    console.log(todo);
   }
 
   const handleDelete = (event) => {
     event.preventDefault();
     const id = event.target.id;
-    deleteMutation.mutateAsync(id);
+    deleteMutation.mutate(id);
   }
 
-  const handleCLick =(id) =>{
-    console.log(id)
-
-  }
   
+  function Editable({...props}){
+    return(
+      (props.todoINDEX === toggled) ? (
+        <input type="text" defaultValue={props.value} onBlur={props.handleBlur}/>
+      ) : (
+        <div>
+          <li onDoubleClick={props.handleDoubleClick}>{props.value} <button id={props.todoID} onClick={props.handleDelete}>Delete</button></li>
 
+        </div>
+       
+      )
+    )
+  }
   
 
   if (isLoading) return 'Loading...'
@@ -66,18 +75,31 @@ function Todos() {
     <div>
         
         <ul>
-         {data.data.map(todo => (
-              <Editable key={todo[0]} 
-                        value={todo[2]} 
-                        // handleDoubleClick={()=> setToggleInput(true)}
-                        handleBlur={()=> setToggleInput(false)}
-                        toggleInput={toggleInput}
-                        onClick={() => handleCLick(todo[0])}
-              />
+         {data.data.map((todo, idx) => (
+            <Editable key={todo[0]}
+                      todoID={todo[0]}
+                      todoINDEX={idx}
+                      value={todo[2]} 
+                      handleDoubleClick={() => setToggled(idx)}
+                      handleBlur={(e)=> {
+                            e.preventDefault();
+                            const newTitle = e.target.value;
+                            
+                            if(newTitle !== todo[2]){
+                              updateMutation.mutate({index: todo[0], title: newTitle});
+                              setToggled(-1);
+                            }else{
+                              setToggled(-1);
+                            }
+                      }}
+                      handleDelete={handleDelete}
+
+            />
+  
          ))}
        </ul>
       
-       <form onSubmit={handleSubmit}>
+       <form onSubmit={handleAdd}>
         <input type='text' placeholder="Enter things to do." name='newTODO'/>
         <button>Add TODO</button>
         </form>
