@@ -27,6 +27,21 @@ export async function postTODO(title){
     
 }
 
+export async function updateTODO(id, title){
+    try{
+        const todoList = await fetch(`http://localhost:9000/.netlify/functions/todo-update?id=${id}&title=${title}`,{
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Request-Headers': "Origin"
+            }})
+        return todoList
+    }catch(error) {
+        return error
+    }
+    
+}
+
 export async function deleteTODO(id){
     try{
         const todoList = await fetch(`http://localhost:9000/.netlify/functions/todo-delete?id=${id}`,{
