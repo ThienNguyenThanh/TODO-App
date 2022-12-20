@@ -1,16 +1,29 @@
 import './App.css';
 import { getTODO, postTODO, deleteTODO } from './component/fetch';
 import {useQuery,useQueryClient, QueryClient, QueryClientProvider, useMutation } from 'react-query'
-import {ReactQueryDevtools} from 'react-query/devtools'
+import {ReactQueryDevtools} from 'react-query/devtools';
+import {useState} from 'react'
 
-
+function Editable({...props}){
+  return(
+    props.toggleInput ? (
+      <input type="text" defaultValue='test' onBlur={props.handleBlur}   />
+    ) : (
+      <li onDoubleClick={props.handleDoubleClick}>{props.value}</li>
+    )
+  )
+}
 
 function Todos() {
+  // Set todo's state
+  const [toggleInput, setToggleInput] = useState(false)
+
   // Access the client
   const queryClient = useQueryClient()
 
   // Queries
   const {isLoading, error, data} = useQuery('todos', getTODO)
+
   // Mutations
   const addMutation = useMutation(title => postTODO(title), {
     onSuccess: () => {
@@ -39,6 +52,14 @@ function Todos() {
     deleteMutation.mutateAsync(id);
   }
 
+  const handleCLick =(id) =>{
+    console.log(id)
+
+  }
+  
+
+  
+
   if (isLoading) return 'Loading...'
   if (error) return 'An error has occurred: ' + error.message
   return (
@@ -46,8 +67,13 @@ function Todos() {
         
         <ul>
          {data.data.map(todo => (
-           <li key={todo[0]}>{todo[2]} <button id={todo[0]} onClick={handleDelete}>Delete</button></li>
-           
+              <Editable key={todo[0]} 
+                        value={todo[2]} 
+                        // handleDoubleClick={()=> setToggleInput(true)}
+                        handleBlur={()=> setToggleInput(false)}
+                        toggleInput={toggleInput}
+                        onClick={() => handleCLick(todo[0])}
+              />
          ))}
        </ul>
       
