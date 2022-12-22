@@ -13,14 +13,17 @@ exports.handler = (event, content, callback) => {
     if(event.httpMethod == 'POST'){
         const id = event.queryStringParameters.id
         const title = event.queryStringParameters.title
-        
+        const isDone = event.queryStringParameters.isDone
+        const changeParam = {
+            ...(title !== 'undefined' && {title: title}),
+            ...(isDone !== 'undefined' && {isDone: isDone})
+        }
+                
         return client.query(
             Update(
                 Ref(Collection('TODO-List'), id),
                 {
-                  data: {
-                    title: title
-                  },
+                  data: changeParam
                 },
               )
         ).then((response) => {

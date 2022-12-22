@@ -21,11 +21,12 @@ export function TodosList() {
   const addMutation = useMutation(title => postTODO(title), {
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries('todos')
+      console.log(queryClient.getQueryData(['todos']))
+      // queryClient.invalidateQueries('todos')
     },
   })
 
-  const updateMutation = useMutation(({index, title}) => updateTODO(index, title), {
+  const updateMutation = useMutation(({id, title, isDone}) => updateTODO(id, title,isDone), {
     onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries('todos')
@@ -47,6 +48,7 @@ export function TodosList() {
 
   const handleDelete = (event) => {
     event.preventDefault();
+    event.currentTarget.disabled = true;
     const id = event.target.id;
     deleteMutation.mutate(id);
   }  
@@ -54,21 +56,22 @@ export function TodosList() {
   function TodoItem({...props}){
     return(
       (props.todoINDEX === toggled) ? (
-        <input type="text" defaultValue={props.value} onBlur={props.handleBlur} className="my-2 flex flex-row items-center rounded-md border border-app-200 p-5"/>
+        <div className="my-2 flex flex-row items-center rounded-md border border-app-200 p-5">
+            <input type="text" defaultValue={props.value} onBlur={props.handleBlur} />
+        </div>
       ) : (
-        <div>
-          <li onDoubleClick={props.handleDoubleClick}>{props.value} <button id={props.todoID} onClick={props.handleDelete}>Delete</button></li>
+
           <div className="my-2 flex flex-row items-center rounded-md border border-app-200 p-5">
             <p className="text-md font-base flex-1 text-app-600 antialiased"
                onDoubleClick={props.handleDoubleClick}
             >
               <span className={props.isDone ? "line-through" : ""}>{props.value}</span>
             </p>
-            <div className="flex flex-row">Hi</div>
+            {/* <div className="flex flex-row">Hi</div> */}
             <SmallButton
               icon='done'
               alt="Mark task as done icon"
-              onClick={() => console.log('Mark todo done')}
+              onClick={() => updateMutation.mutate({id: props.todoID, isDone: true})}
             />
             <SmallButton
               id={props.todoID}
@@ -78,7 +81,7 @@ export function TodosList() {
             />
           </div>
           
-        </div>
+
        
       )
     )
@@ -94,7 +97,7 @@ export function TodosList() {
                                     todoID={todo[0]}
                                     todoINDEX={idx}
                                     value={todo[2]} 
-                                    isDone={false}
+                                    isDone={todo[3]}
                                     handleDoubleClick={() => setToggled(idx)}
                                     handleDelete={handleDelete}
                                     handleBlur={(e)=> {
@@ -102,7 +105,7 @@ export function TodosList() {
                                           const newTitle = e.target.value;
                                           
                                           if(newTitle !== todo[2]){
-                                            updateMutation.mutate({index: todo[0], title: newTitle});
+                                            updateMutation.mutate({id: todo[0], title: newTitle});
                                             setToggled(-1);
                                           }else{
                                             setToggled(-1);

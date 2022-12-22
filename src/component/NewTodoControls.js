@@ -14,17 +14,24 @@ export function NewTodoControls() {
   const queryClient = useQueryClient()
 
   // Mutations
-  const addMutation = useMutation(title => postTODO(title), {
-    onSuccess: () => {
+  const { isLoading,mutate} = useMutation(title => postTODO(title), {
+    onSuccess: (data) => {
       // Invalidate and refetch
-      queryClient.invalidateQueries('todos')
+      queryClient.setQueryData(['todos'], (oldTODO) =>  {
+        console.log(oldTODO)
+        return{
+          ...oldTODO,
+          data: [...oldTODO.data, data.data]
+        }
+      })
+      // queryClient.invalidateQueries('todos')
     },
   })
 
   const handleAdd = (event) => {
     event.preventDefault();
     const todo = event.target.newTODO.value;
-    addMutation.mutate(todo)
+    mutate(todo)
   }
   return (
     <>
@@ -34,7 +41,7 @@ export function NewTodoControls() {
       <Button children="Add new task"  />
     </form>
     <hr className="my-12" />
-      
+      {isLoading && <h1>Adding new todo ....</h1>}
     </>
   );
 }
