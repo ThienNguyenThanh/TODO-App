@@ -11,7 +11,7 @@ const {
 
 exports.handler = (event, content, callback) => {
     return client.query(
-        Paginate(Match(Index("todo-List")))
+        Paginate(Match(Index("todo-list")))
     ).then((res) => {
         return {
             statusCode: 200,
