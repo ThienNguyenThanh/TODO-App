@@ -9,8 +9,8 @@
   "dependencies": {
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
-    "@mui/icons-material": "^5.11.0",
-    "@mui/material": "^5.11.0",
+    "@fontsource/inter": "^4.5.14",
+    "@fontsource/roboto": "^4.5.8",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -29,6 +29,7 @@
     "start": "npm-run-all --parallel start:**",
     "build:app": "react-scripts build",
     "build:server": "netlify-lambda build functions",
+    "build-css": "tailwindcss build ./src/styles.css -o ./public/styles.css",
     "build": "npm-run-all --parallel build:**",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -52,8 +53,8 @@
     ]
   },
   "devDependencies": {
-    "http-proxy-middleware": "^2.0.6",
     "netlify-lambda": "^2.0.15",
-    "npm-run-all": "^4.1.5"
+    "npm-run-all": "^4.1.5",
+    "tailwindcss": "^3.2.4"
   }
 }

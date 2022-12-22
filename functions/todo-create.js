@@ -16,7 +16,7 @@ exports.handler = (event, content, callback) =>{
         const todo_thing = {
             data: {
                 "title": title,
-                "status": "active"
+                "isDone": false
             }
         }
         return client.query(
