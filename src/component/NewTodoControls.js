@@ -18,10 +18,9 @@ export function NewTodoControls() {
     onSuccess: (data) => {
       // Invalidate and refetch
       queryClient.setQueryData(['todos'], (oldTODO) =>  {
-        console.log(oldTODO)
+        const newData = [data.ref['@ref'].id ,data.ts,data.data.title, data.data.isDone]
         return{
-          ...oldTODO,
-          data: [...oldTODO.data, data.data]
+          data: [...oldTODO.data, newData]
         }
       })
       // queryClient.invalidateQueries('todos')
@@ -40,8 +39,10 @@ export function NewTodoControls() {
       <Input/>
       <Button children="Add new task"  />
     </form>
+    <br></br>
+    {isLoading && <h1>Adding new todo ....</h1>}
     <hr className="my-12" />
-      {isLoading && <h1>Adding new todo ....</h1>}
+      
     </>
   );
 }
