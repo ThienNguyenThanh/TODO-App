@@ -1,30 +1,18 @@
-import { TodoItem } from "./TodoItem";
 import { Message } from "./UI/Message";
 import { useState} from 'react'
-import { getTODO, postTODO, updateTODO, deleteTODO } from './fetch';
+import { getTODO, updateTODO, deleteTODO } from './fetch';
 import {useQuery,useQueryClient, useMutation } from 'react-query';
 import { SmallButton } from "./UI/SmallButton";
 
 export function TodosList() {
-  const todos = ['example1','example3','example3'];
   // const toggled = useRef()
   const [toggled, setToggled] = useState(-1)
-  
-  
+
   // Access the client
   const queryClient = useQueryClient()
 
   // Queries
-  const {isLoading, error, data} = useQuery('todos', getTODO)
-
-  // Mutations
-  const addMutation = useMutation(title => postTODO(title), {
-    onSuccess: () => {
-      // Invalidate and refetch
-      console.log(queryClient.getQueryData(['todos']))
-      // queryClient.invalidateQueries('todos')
-    },
-  })
+  const {isLoading, error, data, isFetching} = useQuery('todos', getTODO)
 
   const updateMutation = useMutation(({id, title, isDone}) => updateTODO(id, title,isDone), {
     onSuccess: () => {
@@ -40,11 +28,6 @@ export function TodosList() {
     },
   })
 
-  const handleAdd = (event) => {
-    event.preventDefault();
-    const todo = event.target.newTODO.value;
-    addMutation.mutate(todo)
-  }
 
   const handleDelete = (event) => {
     event.preventDefault();
@@ -54,42 +37,48 @@ export function TodosList() {
   }  
 
   function TodoItem({...props}){
+
+    // Updating todo
+    const handleBlur = (e) => {
+        e.preventDefault();
+        const newTitle = e.target.value;
+        
+        if(newTitle !== props.value){
+          updateMutation.mutate({id: props.todoID, title: newTitle});
+          setToggled(-1);
+        }else{
+          setToggled(-1);
+        }
+    }
+  
     return(
       (props.todoINDEX === toggled) ? (
         <div className="my-2 flex flex-row items-center rounded-md border border-app-200 p-5">
-            <input type="text" defaultValue={props.value} onBlur={props.handleBlur} />
+            <input type="text" defaultValue={props.value} onBlur={handleBlur} autoFocus/>
         </div>
       ) : (
-
+  
           <div className="my-2 flex flex-row items-center rounded-md border border-app-200 p-5">
             <p className="text-md font-base flex-1 text-app-600 antialiased"
-               onDoubleClick={props.handleDoubleClick}
+               onDoubleClick={() => setToggled(props.todoINDEX)}
             >
-              <span className={props.isDone ? "line-through" : ""}>{props.value}</span>
+              <span>{props.value}</span>
             </p>
-            {/* <div className="flex flex-row">Hi</div> */}
-            <SmallButton
-              icon='done'
-              alt="Mark task as done icon"
-              onClick={() => updateMutation.mutate({id: props.todoID, isDone: true})}
-            />
             <SmallButton
               id={props.todoID}
-              icon='delete'
-              alt="Remove task from list icon"
-              onClick={props.handleDelete}
+              icon='done'
+              alt="Mark task as done icon"
+              onClick={handleDelete}
             />
           </div>
-          
-
-       
       )
     )
   }
 
   if (isLoading) return 'Loading...'
+  if (isFetching || updateMutation.isLoading || deleteMutation.isLoading) return 'Updating...'
   if (error) return 'An error has occurred: ' + error.message
-
+  
   return (
     <>
       {data.data.length > 0 ? (
@@ -98,19 +87,6 @@ export function TodosList() {
                                     todoINDEX={idx}
                                     value={todo[2]} 
                                     isDone={todo[3]}
-                                    handleDoubleClick={() => setToggled(idx)}
-                                    handleDelete={handleDelete}
-                                    handleBlur={(e)=> {
-                                          e.preventDefault();
-                                          const newTitle = e.target.value;
-                                          
-                                          if(newTitle !== todo[2]){
-                                            updateMutation.mutate({id: todo[0], title: newTitle});
-                                            setToggled(-1);
-                                          }else{
-                                            setToggled(-1);
-                                          }
-                                    }}
                           />)
       ) : (
         <Message text="You don't have any tasks anymore :(" />

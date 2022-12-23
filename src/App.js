@@ -1,6 +1,5 @@
 import { QueryClient, QueryClientProvider } from 'react-query'
 import {ReactQueryDevtools} from 'react-query/devtools';
-import {TodoList} from './component/todoList'
 import { Title } from './component/UI/Title';
 import { NewTodoControls } from './component/NewTodoControls';
 import { TodosList } from './component/TodosList';

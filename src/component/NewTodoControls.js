@@ -1,29 +1,22 @@
-// import { useStore } from "../store";
-import { Header } from "./UI/Header";
 import { Input } from "./UI/Input";
 import { Button } from "./UI/Button";
 import { postTODO } from "./fetch";
-import {useQuery,useQueryClient, useMutation } from 'react-query';
+import {useQueryClient, useMutation } from 'react-query';
 
 export function NewTodoControls() {
-  const inputValue = 'Default'
-  // const addNewTodo = useStore((state) => state.addNewTodo);
-  // const setInputValue = useStore((state) => state.setInputValue);
-
   // Access the client
   const queryClient = useQueryClient()
 
   // Mutations
   const { isLoading,mutate} = useMutation(title => postTODO(title), {
     onSuccess: (data) => {
-      // Invalidate and refetch
+      // Use response data
       queryClient.setQueryData(['todos'], (oldTODO) =>  {
         const newData = [data.ref['@ref'].id ,data.ts,data.data.title, data.data.isDone]
         return{
           data: [...oldTODO.data, newData]
         }
       })
-      // queryClient.invalidateQueries('todos')
     },
   })
 
@@ -42,7 +35,6 @@ export function NewTodoControls() {
     <br></br>
     {isLoading && <h1>Adding new todo ....</h1>}
     <hr className="my-12" />
-      
     </>
   );
 }
